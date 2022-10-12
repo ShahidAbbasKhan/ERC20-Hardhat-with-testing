@@ -1,5 +1,8 @@
-const { expect } = require("chai");
+const { expect} = require("chai");
 const { ethers } = require("hardhat");
+const chai= require("chai");
+const should = chai.should();
+
 
 describe("ERC20FixedSupply", function(){
     beforeEach(async function(){
@@ -8,12 +11,15 @@ describe("ERC20FixedSupply", function(){
         Erctoken = await ERC20FixedSupply.deploy();
         await Erctoken.deployed();
     })
+    it("Contract is Deployed?", async function(){
+        console.log("Yes Contract is Deployed Successfully!");
+    })
     describe("Deployment", function(){
         it("should set right owner of contract", async function(){
             const balanceSupply= await Erctoken.balanceOf(owner.address);
            expect(await Erctoken.tokenSupply()).to.equal(balanceSupply);
            console.log("Contract owner is",owner.address);
-           console.log("total Supply is",Erctoken.tokenSupply());
+           console.log("total Supply is", await Erctoken.tokenSupply());
            console.log("balance of Owner is",balanceSupply);
         })
         it("This should return balance of owner ", async function() {
@@ -22,7 +28,7 @@ describe("ERC20FixedSupply", function(){
         })
         it("it should return Total supply", async function(){
             const Tokensupply = await Erctoken.tokenSupply();
-            expect(Tokensupply).to.equal(10000);
+            expect(Tokensupply.toString()).to.equal("10000000000000000000000");
             console.log("Token Supply= ", Tokensupply);
         }) 
         it("it should return the name of token", async function(){
@@ -44,8 +50,8 @@ describe("ERC20FixedSupply", function(){
     describe("Check balance before sending" ,function(){
         it("Should fail if the balance is not enough", async function(){
         const initialBalOwner= await Erctoken.balanceOf(owner.address);
-        const check= await Erctoken.connect(add1).trasfer(owner.address,6)
-        expect(check).to.be.revertedWith("You have not sufficent tokens");
+        console.log(await Erctoken.balanceOf(add1.address));
+        await Erctoken.connect(add1).transfer(owner.address,3).should.be.revertedWith("You have not sufficent tokens");
         expect(await Erctoken.balanceOf(owner.address)).to.equal(initialBalOwner);
     
         })
@@ -53,19 +59,21 @@ describe("ERC20FixedSupply", function(){
     describe("Transfer" ,function(){
         it("This should transfer tokens from owner to add1", async function(){
         const initialBalOwner= await Erctoken.balanceOf(owner.address);
-        console.log("owner balance before transfer",initialBalOwner)
+        console.log("owner balance before transfer",initialBalOwner);
         await Erctoken.transfer(add1.address,50);
         const finalBalOwner=await Erctoken.balanceOf(owner.address);
-        expect(finalBalOwner).to.equal(initialBalOwner-50);
+        expect(finalBalOwner===(initialBalOwner-50));
         console.log("owner balance  after transferred to add1",finalBalOwner);
         expect(await Erctoken.balanceOf(add1.address)).to.equal(50);
+        console.log("Add1 balance is", await Erctoken.balanceOf(add1.address));
         })
     })
     describe("Approve ", function(){
         it("this should approve number tokens to the delegate ", async function(){
             const approveTokens = 50;
             await Erctoken.approve(add1.address, approveTokens);
-            expect(await Erctoken.balanceOf(add1.address)).to.equal(50);
+            console.log(await Erctoken.allowance(owner.address,add1.address));
+            expect(await Erctoken.allowance(owner.address,add1.address)).to.equal(50);
             console.log("Number of tokens approved= ", approveTokens);
         })
     })
@@ -84,7 +92,7 @@ describe("ERC20FixedSupply", function(){
         it("show allowance of the approved Address", async function (){
             await Erctoken.approve(add1.address,7);
             const spenderBal= await Erctoken.connect(add1).allowance(owner.address,add1.address);
-            expect(spenderBal).to.equal(await Erctoken.balanceOf(add1.address));
+            expect(spenderBal).to.equal(7);
 
 
         })

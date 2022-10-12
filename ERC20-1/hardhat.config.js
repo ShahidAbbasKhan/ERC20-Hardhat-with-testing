@@ -1,6 +1,8 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-etherscan");
 require('dotenv').config();
+require("@nomicfoundation/hardhat-chai-matchers");
+require("@nomiclabs/hardhat-ethers");
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL1;
 const GOERLI_PVT_KEY= process.env.GOERLI_PVT_KEY1;
 
